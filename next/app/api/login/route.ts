@@ -2,7 +2,7 @@
 import type { NextApiRequest } from 'next';
 import { NextResponse } from "next/server";
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+import { cookies } from 'next/headers'
 
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
@@ -25,6 +25,8 @@ export async function POST(
       });
       
       if (existingUser) {
+        const oneDay = 24 * 60 * 60 * 1000
+        cookies().set('username', username, { maxAge: oneDay, expires: Date.now() - oneDay })
         return NextResponse.json({ user: username }, {status: 201});
       }
       console.log(username, password);

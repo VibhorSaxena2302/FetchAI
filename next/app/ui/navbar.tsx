@@ -2,15 +2,29 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { delete_cookie } from '../lib/logout';
+import { useRouter } from 'next/navigation'
 
-const Navbar: React.FC = () => {
+type NavbarProps = {
+  username: string;
+};
+
+const Navbar: React.FC<NavbarProps> = ({username}) => {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter()
 
   const handleLogout = async () => {
-      // Logout
+      const res = await delete_cookie('username')
+      if (res){
+        router.push('/')
+      }
   };
 
   let isLoggedIn = false;  // This will check if the user is logged in or not
+
+  if (username!='undefined'){
+    isLoggedIn = true
+  }
 
   return (
     <nav className="bg-light shadow-lg">
