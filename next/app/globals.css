@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #ede9fe; /* Use the near-white purple as a light background */
+  color: #4a4a4a; /* Dark grey color for text for better readability */
+}
