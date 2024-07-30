@@ -18,9 +18,11 @@ const Navbar: React.FC = () => {
             </svg>
         </button>
 
-        <Link href="/" className="px-4 font-bold text-xl text-primary">
-          Platform Starter Kit
-        </Link>
+        {!isOpen && (
+            <Link href="/" className="px-4 font-bold text-xl text-primary">
+            Platform Starter Kit
+            </Link>
+        )}
 
         <div className="hidden md:flex space-x-8">
             <Link href="/" className="text-primary hover:text-accent py-2">
@@ -46,24 +48,23 @@ const Navbar: React.FC = () => {
         {isOpen && (
             <div>
                 <div className='md:hidden flex space-x-4'>
-                    <Link href="/" className="block py-4 text-sm text-primary hover:text-accent">
+                    <Link href="/" className="block py-2 text-sm text-primary hover:text-accent">
                     Home
                     </Link>
-                    <Link href="/services" className="block py-4 text-sm text-primary hover:text-accent">
+                    <Link href="/services" className="block py-2 text-sm text-primary hover:text-accent">
                     Services
                     </Link>
-                    <Link href="/about" className="block py-4 text-sm text-primary hover:text-accent">
+                    <Link href="/about" className="block py-2 text-sm text-primary hover:text-accent">
                     About
                     </Link>
-                </div>
-
-                <div className="md:hidden flex space-x-4 shadow-inner shadow-secondary rounded">
-                    <Link href="/login" className="block py-2 pl-6 pr-2 text-sm text-primary hover:text-accent">
-                    Login
-                    </Link>
-                    <Link href="/signup"className="block py-2 pl-4 pr-4 text-sm text-white bg-primary rounded hover:bg-accent">
-                    Sign Up
-                    </Link>
+                    <div className="md:hidden flex space-x-4 shadow-inner shadow-secondary rounded">
+                        <Link href="/login" className="block py-2 pl-6 pr-2 text-sm text-primary hover:text-accent">
+                        Login
+                        </Link>
+                        <Link href="/signup"className="block py-2 pl-4 pr-4 text-sm text-white bg-primary rounded hover:bg-accent">
+                        Sign Up
+                        </Link>
+                    </div>
                 </div>
             </div>
         )}
