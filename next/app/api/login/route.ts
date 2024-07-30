@@ -12,32 +12,23 @@ export async function POST(
   req: NextApiRequest,
 ) {
   if (req.method === 'POST') {
-    const { username, email, password } = await new Response(req.body).json();
+    const { username, password } = await new Response(req.body).json();
     try {
       // Check if email or username already exists
       const existingUser = await prisma.users.findFirst({
         where: {
-          OR: [
+          AND: [
             { username: username },
-            { email: email }
+            { password: password }
           ],
         },
       });
       
       if (existingUser) {
-        return NextResponse.json({ error: 'Username or Email already exists.' }, {status: 409});
+        return NextResponse.json({ user: username }, {status: 201});
       }
-            
-      // Proceed to create user if no existing user is found
-      const newUser = await prisma.users.create({
-        data: {
-          username,
-          email,
-          password, // Ensure to hash the password before saving (use bcrypt or similar in production)
-        },
-      });
-
-      return NextResponse.json({ user: newUser }, {status: 201});
+      console.log(username, password);
+      return NextResponse.json({ error: 'Username or Password is incorrect.' }, {status: 409});
     } catch (error) {
       return NextResponse.json({ error: error }, {status: 500});
     }
