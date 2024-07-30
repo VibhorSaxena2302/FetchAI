@@ -12,7 +12,7 @@ const config: Config = {
         primary: '#7c3aed',   // Rich purple
         secondary: '#a78bfa', // Light purple
         accent: '#c4b5fd',    // Very light purple
-        light: '#ede9fe',     // Near-white purple
+        light: 'white',     // Near-white purple
       }
     },
   },

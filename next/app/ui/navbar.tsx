@@ -6,6 +6,12 @@ import Link from 'next/link';
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
+  const handleLogout = async () => {
+      // Logout
+  };
+
+  let isLoggedIn = false;  // This will check if the user is logged in or not
+
   return (
     <nav className="bg-light shadow-lg">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -35,14 +41,25 @@ const Navbar: React.FC = () => {
           </Link>
         </div>
 
-        <div className="hidden md:flex space-x-8 shadow-inner shadow-secondary rounded items-center">
-          <Link href="/login" className="text-primary hover:text-accent py-2 pl-8">
-            Login
-          </Link>
-          <Link href="/signup" className="py-2 pl-4 pr-4 font-medium text-white bg-primary rounded hover:bg-accent">
-            Sign Up
-          </Link>
-        </div>
+        {!isLoggedIn && (
+          <div className="hidden md:flex space-x-8 shadow-inner shadow-secondary rounded items-center">
+            <Link href="/login" className="text-primary hover:text-accent py-2 pl-8">
+              Login
+            </Link>
+            <Link href="/signup" className="py-2 pl-4 pr-4 font-medium text-white bg-primary rounded hover:bg-accent">
+              Sign Up
+            </Link>
+          </div>
+        )}
+
+        {isLoggedIn && (
+          <div className="hidden md:flex space-x-8 shadow-inner shadow-secondary rounded items-center">
+            <button className="py-2 pl-4 pr-4 font-medium text-white bg-primary rounded hover:bg-accent" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
+        )}
+        
 
         {isOpen && (
             <div className='md:hidden flex space-x-2'>
@@ -57,14 +74,23 @@ const Navbar: React.FC = () => {
                     About
                     </Link>
                 </div>
-                <div className="md:hidden flex space-x-1 shadow-inner shadow-secondary rounded">
-                    <Link href="/login" className="block py-2 pl-2 text-sm text-primary hover:text-accent">
-                    Login
-                    </Link>
-                    <Link href="/signup"className="block py-2 pl-2 pr-2 text-sm text-white bg-primary rounded hover:bg-accent">
-                    SignUp
-                    </Link>
-                </div>
+                {!isLoggedIn && (
+                  <div className="md:hidden flex space-x-1 shadow-inner shadow-secondary rounded">
+                      <Link href="/login" className="block py-2 pl-2 text-sm text-primary hover:text-accent">
+                      Login
+                      </Link>
+                      <Link href="/signup"className="block py-2 pl-2 pr-2 text-sm text-white bg-primary rounded hover:bg-accent">
+                      SignUp
+                      </Link>
+                  </div>
+                )}
+                {isLoggedIn && (
+                  <div className="md:hidden flex space-x-1 shadow-inner shadow-secondary rounded">
+                      <button className="block py-2 pl-2 pr-2 text-sm text-white bg-primary rounded hover:bg-accent" onClick={handleLogout}>
+                      Logout
+                      </button>
+                  </div>
+                )}
             </div>
         )}
       </div>
