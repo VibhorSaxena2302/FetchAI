@@ -1,6 +1,7 @@
 // pages/api/signup.ts
 import { NextResponse } from "next/server";
 import { PrismaClient } from '@prisma/client';
+import { cookies } from 'next/headers'
 
 const prisma = new PrismaClient({});
 
@@ -32,7 +33,8 @@ export async function POST(
           password, // Ensure to hash the password before saving (use bcrypt or similar in production)
         },
       });
-
+      const oneDay = 24 * 60 * 60 * 1000
+      cookies().set('username', username, { maxAge: oneDay, expires: Date.now() - oneDay, path:'/' })
       return NextResponse.json({ user: newUser }, {status: 201});
     } catch (error) {
       return NextResponse.json({ error: error }, {status: 500});
