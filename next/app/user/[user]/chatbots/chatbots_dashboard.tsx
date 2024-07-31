@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getChatbotsByUsername } from '@/app/lib/database';
 import { cookies } from 'next/headers'
+import { Key, ReactElement, JSXElementConstructor, ReactNode, ReactPortal, AwaitedReactNode } from 'react';
 
 export default async function Dashboard() {
     const cookieStore = cookies()
@@ -23,7 +24,7 @@ export default async function Dashboard() {
             <div className="mt-4 p-6 bg-white shadow-md rounded-lg md:w-auto">
                 {chatbots && chatbots.length > 0 ? (
                     <ul>
-                        {chatbots.map(chatbot => (
+                        {chatbots.map((chatbot: { id: Key | null | undefined; name: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; description: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; }) => (
                             <li key={chatbot.id} className="border-b border-primary text-tc py-4">
                                 <Link href={`/user/${username}/chatbots/${chatbot.id}`} className="hover:text-primary">
                                     {chatbot.name} - {chatbot.description}
