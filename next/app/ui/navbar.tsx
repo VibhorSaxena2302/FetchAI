@@ -25,7 +25,6 @@ const Navbar: React.FC<NavbarProps> = ({username = 'undefined'}) => {
 
   const pathname = usePathname()
   const parts = pathname.split('/'); // This splits the URL into an array by "/"
-  const dynamicPath = parts[2];
 
   if (username!='undefined'){
     isLoggedIn = true
@@ -33,7 +32,7 @@ const Navbar: React.FC<NavbarProps> = ({username = 'undefined'}) => {
   }
 
   useEffect(() => {
-    if (isLoggedIn && username!=dynamicPath) {
+    if (isLoggedIn && parts[1]=='user' && username!=parts[2]) {
         router.push('/');
     }
   });
