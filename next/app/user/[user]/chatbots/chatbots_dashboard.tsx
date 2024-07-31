@@ -2,12 +2,6 @@ import Link from 'next/link';
 import { getChatbotsByUsername } from '@/app/lib/database';
 import { cookies } from 'next/headers'
 
-type Chatbot = {
-    id: number;
-    name: string;
-    description: string;
-};
-
 export default async function Dashboard() {
     const cookieStore = cookies()
     const cookieObject = cookieStore.get('username')
