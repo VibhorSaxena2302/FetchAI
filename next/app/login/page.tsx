@@ -5,9 +5,11 @@ import React, { useState } from 'react';
 import Navbar from '../ui/navbar';
 import { useRouter } from 'next/navigation';
 
-const SignupPage: React.FC = () => {
+const LoginPage: React.FC = () => {
     const router = useRouter();
 
+    const [isFailed, setisFailed] = useState(false);
+    
     const [formData, setFormData] = useState({
         username: '',
         password: ''
@@ -33,6 +35,7 @@ const SignupPage: React.FC = () => {
             console.log('User logged in successfully');
             router.push(`/user/${encodeURIComponent(formData.username)}`);
         } else {
+            setisFailed(true)
             console.error('Failed to log in user');
         }
     };
@@ -68,6 +71,9 @@ const SignupPage: React.FC = () => {
                                 required
                             />
                         </div>
+                        {isFailed && (
+                            <div className="text-sm font-medium text-error">Username or password incorrect.</div>
+                        )}
                         <button type="submit" className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-light bg-primary hover:bg-gray-700">
                             Login
                         </button>
@@ -78,4 +84,4 @@ const SignupPage: React.FC = () => {
     );
 };
 
-export default SignupPage;
+export default LoginPage;
