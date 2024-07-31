@@ -9,7 +9,7 @@ const prisma = new PrismaClient({
 });
 
 export async function POST(
-  req: NextApiRequest,
+  req: Request,
 ) {
   if (req.method === 'POST') {
     const { username, email, password } = await new Response(req.body).json();

@@ -1,5 +1,4 @@
 // pages/api/signup.ts
-import type { NextApiRequest } from 'next';
 import { NextResponse } from "next/server";
 import { PrismaClient } from '@prisma/client';
 import { cookies } from 'next/headers'
@@ -9,7 +8,7 @@ const prisma = new PrismaClient({
 });
 
 export async function POST(
-  req: NextApiRequest,
+  req: Request,
 ) {
   if (req.method === 'POST') {
     const { username, password } = await new Response(req.body).json();
