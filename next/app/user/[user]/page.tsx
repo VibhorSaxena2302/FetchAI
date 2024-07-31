@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import Navbar from '../../ui/navbar';
 import { cookies } from 'next/headers'
-import { redirect, usePathname } from 'next/navigation'
+import { redirect } from 'next/navigation'
 
 const UserHomePage: NextPage = () => {
   const cookieStore = cookies()
