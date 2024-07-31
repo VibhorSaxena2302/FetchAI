@@ -4,13 +4,12 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { delete_cookie } from '../lib/logout';
 import { useRouter, usePathname } from 'next/navigation'
-import path from 'path';
 
 type NavbarProps = {
-  username: string;
+  username?: string;
 };
 
-const Navbar: React.FC<NavbarProps> = ({username}) => {
+const Navbar: React.FC<NavbarProps> = ({username = 'undefined'}) => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter()
 

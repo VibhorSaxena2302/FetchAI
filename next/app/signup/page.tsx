@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 const SignupPage: React.FC = () => {
     const router = useRouter();
 
+    const [isFailed, setisFailed] = useState(false);
+
     const [formData, setFormData] = useState({
         username: '',
         email: '',
@@ -34,6 +36,7 @@ const SignupPage: React.FC = () => {
             console.log('User created successfully');
             router.push(`/user/${encodeURIComponent(formData.username)}`);
         } else {
+            setisFailed(true)
             console.error('Failed to create user');
         }
     };
@@ -81,6 +84,9 @@ const SignupPage: React.FC = () => {
                                 required
                             />
                         </div>
+                        {isFailed && (
+                            <div className="text-sm font-medium text-error">Username or email already exists.</div>
+                        )}
                         <button type="submit" className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-light bg-primary hover:bg-gray-700">
                             Sign Up
                         </button>
