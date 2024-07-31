@@ -28,6 +28,10 @@ export async function POST(
     
       const userid = await getUserIdByUsername(username)
 
+      if (userid === null) {
+        return NextResponse.json({ error: 'User ID not found.' }, {status: 404});
+      }
+      
       const newChatbot = await prisma.chatbots.create({
         data: {
           name,
