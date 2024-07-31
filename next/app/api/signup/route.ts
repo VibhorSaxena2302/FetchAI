@@ -1,12 +1,8 @@
 // pages/api/signup.ts
-import type { NextApiRequest } from 'next';
 import { NextResponse } from "next/server";
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient({
-  log: ['query', 'info', 'warn', 'error'],
-});
+const prisma = new PrismaClient({});
 
 export async function POST(
   req: Request,
