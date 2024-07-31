@@ -8,8 +8,13 @@ type ChatbotProps = {
   username?: string;
 };
 
+interface Chatbot {
+  name: string;
+  description: string | null;
+}
+
 const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
-    const [chatbot, setChatbot] = useState(null)
+    const [chatbot, setChatbot] = useState<Chatbot | null>(null);
     const [isLoading, setLoading] = useState(true)
 
     const [message, setMessage] = useState('');
@@ -43,8 +48,6 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
             fetchData();
         }
     }, [chatbotId]);
-
-    console.log(chatbot)
 
     const addMessageToChat = (sender: string, text: string) => {
         setChatHistory((prevHistory) => [...prevHistory, { sender, text }]);
