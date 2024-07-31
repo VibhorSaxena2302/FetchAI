@@ -2,12 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { ChatbotLoadingSkeleton } from '@/app/ui/skeletons';
 
 type ChatbotProps = {
   username?: string;
 };
 
 const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
+    const [chatbot, setChatbot] = useState(null)
+    const [isLoading, setLoading] = useState(true)
+
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState<{ sender: string; text: string }[]>([]);
 
@@ -15,7 +19,36 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
     const parts = pathname.split('/');
     const chatbotId = parseInt(parts[4], 10);
 
-    console.log(chatbotId)
+    useEffect(() => {
+        if (chatbotId) {
+            const fetchData = async () => {
+            try {
+                console.log(chatbotId)
+                const response = await fetch('/api/chatbot_data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 'chatbotid': chatbotId }),
+                });
+                const result = await response.json();
+                setChatbot(result.chatbot);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                setLoading(false);
+            }
+            };
+        
+            fetchData();
+        }
+    }, [chatbotId]);
+
+    console.log(chatbot)
+
+    const addMessageToChat = (sender: string, text: string) => {
+        setChatHistory((prevHistory) => [...prevHistory, { sender, text }]);
+      };
 
     const handleMessageSend = async () => {
         if (!message.trim()) return;
@@ -64,10 +97,6 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
         // }
       };
     
-      const addMessageToChat = (sender: string, text: string) => {
-        setChatHistory((prevHistory) => [...prevHistory, { sender, text }]);
-      };
-    
       const addLoadingIndicator = () => {
         const loadingIndicator = { sender: 'bot', text: '...' };
         setChatHistory((prevHistory) => [...prevHistory, loadingIndicator]);
@@ -75,18 +104,14 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
           remove: () => setChatHistory((prevHistory) => prevHistory.filter((msg) => msg !== loadingIndicator)),
         };
       };
-    
-      useEffect(() => {
-        console.log(chatHistory.length)
-        if (chatHistory.length == 0){
-            addMessageToChat('bot', "Hi! How can i help you today?");
-        }
-      }, [chatHistory]);
+
+      if (isLoading) return <ChatbotLoadingSkeleton/>
+      if (!chatbot) return <p>No profile data</p>
 
   return (
     <div className="flex flex-col items-center">
       <h1 className="text-xl md:text-3xl font-bold text-primary py-8">
-            Chatbot
+            {chatbot.name}
         </h1>
       <div className="text-xs md:text-base chat-container w-2/3 max-w-4xl bg-white shadow-md rounded-lg mt-5 p-5 flex flex-col overflow-y-auto h-[30rem]">
         {chatHistory.length > 0 && chatHistory.map((msg, index) => (

@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from '@prisma/client';
 import { cookies } from 'next/headers'
-import { getUserIdByUsername, getChatbotByName } from "@/app/lib/database";
+import { getUserIdByUsername } from "@/app/lib/database";
 
 const prisma = new PrismaClient({});
 

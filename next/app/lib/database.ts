@@ -43,19 +43,29 @@ export async function getChatbotsByUserId(userId: number) {
     return chatbots;
   }
 
-export async function getChatbotByName(chatbotName: string): Promise<number | null> {
+  type Chatbot = {
+    name: string;
+    description: string | null;
+  };
+  
+export async function getChatbotById(chatbotId: number): Promise<Chatbot | null> {
     try {
+        if (!chatbotId){
+            console.log('Chatbotid is null.');
+            return null
+        }
         const chatbot = await prisma.chatbots.findFirst({
             where: {
-                name: chatbotName,
+                id: chatbotId,
             },
             select: {
-                id: true,  // Only fetch the ID
+                name: true, 
+                description: true
             },
         });
         console.log(chatbot)
         if (chatbot) {
-            return chatbot.id;
+            return chatbot;
         } else {
             console.log('Chatbot not found.');
             return null;
