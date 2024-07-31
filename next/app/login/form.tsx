@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => {
 
         if (response.ok) {
             console.log('User logged in successfully');
-            router.push(`/user/${encodeURIComponent(formData.username)}`);
+            router.push(`/user/${encodeURIComponent(formData.username)}/chatbots`);
         } else {
             setisFailed(true)
             console.error('Failed to log in user');
@@ -43,10 +43,10 @@ const LoginPage: React.FC = () => {
         <div>
             <div className="min-h-screen flex flex-col justify-center items-center">
                 <div className="p-8 border rounded-md shadow-lg bg-light md:w-96"> {/* Adjusted width here */}
-                    <h2 className="text-lg font-semibold text-7c3aed mb-4">Login</h2>
+                    <h2 className="text-lg font-semibold text-tc mb-4">Login</h2>
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
-                            <label htmlFor="username" className="text-sm font-medium text-7c3aed">Username</label>
+                            <label htmlFor="username" className="text-sm font-medium text-tc">Username</label>
                             <input
                                 type="text"
                                 id="username"
@@ -58,7 +58,7 @@ const LoginPage: React.FC = () => {
                             />
                         </div>
                         <div>
-                            <label htmlFor="password" className="text-sm font-medium text-7c3aed">Password</label>
+                            <label htmlFor="password" className="text-sm font-medium text-tc">Password</label>
                             <input
                                 type="password"
                                 id="password"

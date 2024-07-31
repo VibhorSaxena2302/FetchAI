@@ -28,7 +28,7 @@ const Navbar: React.FC<NavbarProps> = ({username = 'undefined'}) => {
 
   if (username!='undefined'){
     isLoggedIn = true
-    dashboardpath = '/user/'+username+'/dashboard'
+    dashboardpath = '/user/'+username+'/chatbots'
   }
 
   useEffect(() => {
@@ -80,7 +80,7 @@ const Navbar: React.FC<NavbarProps> = ({username = 'undefined'}) => {
         {isLoggedIn && (
           <div className="hidden md:flex space-x-8 shadow-inner shadow-secondary rounded items-center">
             <Link href={dashboardpath} className="text-primary hover:text-accent py-2 pl-8">
-              Dashboard
+              Chatbots
             </Link>
             <button className="py-2 pl-4 pr-4 font-medium text-white bg-primary rounded hover:bg-accent" onClick={handleLogout}>
               Logout
@@ -115,7 +115,7 @@ const Navbar: React.FC<NavbarProps> = ({username = 'undefined'}) => {
                 {isLoggedIn && (
                   <div className="md:hidden flex space-x-1 shadow-inner shadow-secondary rounded">
                       <Link href={dashboardpath} className="block py-2 pl-2 text-xs text-primary hover:text-accent">
-                      Dashboard
+                      Chatbots
                       </Link>
                       <button className="block py-2 pl-2 pr-2 text-xs text-white bg-primary rounded hover:bg-accent" onClick={handleLogout}>
                       Logout

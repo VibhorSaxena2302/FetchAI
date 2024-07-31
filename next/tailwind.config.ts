@@ -13,7 +13,8 @@ const config: Config = {
         secondary: '#a78bfa', // Light purple
         accent: '#c4b5fd',    // Very light purple
         light: 'white',     // Near-white purple
-        error: '#ef4444'
+        error: '#ef4444',
+        tc: 'black'
       }
     },
   },
