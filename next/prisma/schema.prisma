@@ -20,4 +20,16 @@ model users {
   password  String
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
+  chatbots    chatbots[]
+}
+
+model chatbots {
+  id           Int       @id @default(autoincrement())
+  name         String    @unique
+  description  String?
+  creator_id   Int
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @default(now())
+  document_url String?   
+  creator      users     @relation(fields: [creator_id], references: [id])
 }
