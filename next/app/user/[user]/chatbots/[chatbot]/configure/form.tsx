@@ -73,26 +73,6 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
       e.preventDefault();
       // Post data to the API
       console.log(formData);
-      // const response = await fetch('/api/create_chatbot', {
-      //     method: 'POST',
-      //     headers: {
-      //         'Content-Type': 'application/json'
-      //     },
-      //     body: JSON.stringify(formData),
-      // });
-
-      // if (response.ok) {
-      //     const data = await response.json();
-      //     console.log('Chatbot created successfully');
-      //     if (data && data.chatbot && data.chatbot.id) {
-      //         router.push(`/user/${username}/chatbots/${data.chatbot.id}`); // Use the retrieved chatbot ID
-      //     } else {
-      //         console.error('Chatbot ID not found in response');
-      //     }
-      // } else {
-      //     setisFailed(true)
-      //     console.error('Failed to create chatbot');
-      // }
   };
 
   const deleteChatbot = async (id: number) => {
