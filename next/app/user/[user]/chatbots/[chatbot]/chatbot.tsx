@@ -84,7 +84,7 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
         setMessage('');
         const loadingIndicator = addLoadingIndicator();
 
-        const prompt = `You are given the following role, answer the query following your role. If no role is specified, act like a normal AI bot.\n: ${chatbot.role} \n\n Query: ${message}`
+        const prompt = `You are given the following role, answer the query following your role in less than 150 words. If no role is specified, act like a normal AI bot.\n: ${chatbot.role} \n\n Query: ${message}`
         
         try {
           const response = await fetch('http://127.0.0.1:5003/api/llm', {

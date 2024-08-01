@@ -33,6 +33,7 @@ const LoginPage: React.FC = () => {
         if (response.ok) {
             console.log('User logged in successfully');
             router.push(`/user/${encodeURIComponent(formData.username)}/chatbots`);
+            router.refresh()
         } else {
             setisFailed(true)
             console.error('Failed to log in user');

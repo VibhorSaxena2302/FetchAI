@@ -34,6 +34,7 @@ const SignupPage: React.FC = () => {
         if (response.ok) {
             console.log('User created successfully');
             router.push(`/user/${encodeURIComponent(formData.username)}/chatbots`);
+            router.refresh()
         } else {
             setisFailed(true)
             console.error('Failed to create user');

@@ -71,8 +71,37 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Post data to the API
-    const document_name = null
-    const document_url = null
+    let document_name = null
+    let document_url = null
+
+    const fileform = new FormData();
+    fileform.append('username', username);
+    fileform.append('chatbotid', chatbotId.toString());
+
+    await fetch('http://127.0.0.1:5003/api/deletepdf', {
+        method: 'POST',
+        body: fileform,
+    });
+
+    if (formData.file) {
+        fileform.append('file', formData.file);
+        console.log(formData.file)
+        
+        const response = await fetch('http://127.0.0.1:5003/api/uploadpdf', {
+            method: 'POST',
+            body: fileform,
+          });
+          if (response.ok) {
+            const result = await response.json();
+            console.log(result)
+            console.log('File URL:', result.file_url); 
+            console.log('File Name:', result.file_name); 
+            document_url = result.file_url
+            document_name = result.file_name
+          } else {
+            throw new Error('Failed to upload file');
+          }
+    }
 
     const response = await fetch('/api/update_chatbot', {
         method: 'POST',
@@ -85,6 +114,7 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
     if (response.ok) {
         console.log('Chatbot updated successfully');
             router.push(`/user/${username}/chatbots/${chatbotId}`); // Use the retrieved chatbot ID
+            router.refresh()
     } else {
         setisFailed(true)
         console.error('Failed to update chatbot');
@@ -93,6 +123,15 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
 
   const deleteChatbot = async (id: number) => {
     try {
+        const fileform = new FormData();
+        fileform.append('username', username);
+        fileform.append('chatbotid', chatbotId.toString());
+
+        await fetch('http://127.0.0.1:5003/api/deletepdf', {
+            method: 'POST',
+            body: fileform,
+        });
+
         const response = await fetch(`/api/chatbot_data`, {
             method: 'DELETE',
             headers: {
@@ -104,6 +143,7 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
             throw new Error('Failed to delete the chatbot');
         }
         router.push(`/user/${username}/chatbots`);
+        router.refresh()
     } catch (error) {
         console.error('Error:', error);
     }
