@@ -49,57 +49,22 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
         }
     }, [chatbotId]);
 
-    const addMessageToChat = (sender: string, text: string) => {
-        setChatHistory((prevHistory) => [...prevHistory, { sender, text }]);
-      };
+    const addMessageToChat = (sender:string, text:string, append = false) => {
+      setChatHistory((prevHistory) => {
+        if (append && prevHistory.length > 0) {
+          const lastMessage = prevHistory[prevHistory.length - 1];
+          if (lastMessage.sender === sender) {
+            // Append text to the last message of the same sender
+            return [
+              ...prevHistory.slice(0, prevHistory.length - 1),
+              { ...lastMessage, text: lastMessage.text + text }
+            ];
+          }
+        }
+        return [...prevHistory, { sender, text }];
+      });
+    };
 
-    const handleMessageSend = async () => {
-        if (!message.trim()) return;
-    
-        addMessageToChat('user', message);
-        addMessageToChat('bot', message);
-        setMessage('');
-        // const loadingBubble = addLoadingIndicator();
-    
-        // try {
-        //   const response = await fetch('http://127.0.0.1:5000/chat', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({ query: message }),
-        //   });
-    
-        //   loadingBubble.remove();
-        //   const reader = response.body?.getReader();
-        //   const decoder = new TextDecoder();
-        //   let buffer = '';
-    
-        //   if (reader) {
-        //     const readChunk = async () => {
-        //       const { done, value } = await reader.read();
-        //       if (done) {
-        //         if (buffer) addMessageToChat('bot', buffer);
-        //         return;
-        //       }
-    
-        //       buffer += decoder.decode(value, { stream: true });
-        //       const messages = buffer.split('\n');
-        //       buffer = messages.pop() || '';
-        //       messages.forEach((msg) => {
-        //         if (msg) addMessageToChat('bot', msg);
-        //       });
-    
-        //       readChunk();
-        //     };
-    
-        //     readChunk();
-        //   }
-        // } catch (error) {
-        //   console.error('Error:', error);
-        //   loadingBubble.remove();
-        //   addMessageToChat('bot', "Sorry, there was an error processing your request.");
-        // }
-      };
-    
       const addLoadingIndicator = () => {
         const loadingIndicator = { sender: 'bot', text: '...' };
         setChatHistory((prevHistory) => [...prevHistory, loadingIndicator]);
@@ -107,6 +72,70 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
           remove: () => setChatHistory((prevHistory) => prevHistory.filter((msg) => msg !== loadingIndicator)),
         };
       };
+
+      const handleMessageSend = async () => {
+        if (!message.trim()) return;
+      
+        addMessageToChat('user', message);
+        setMessage('');
+        const loadingIndicator = addLoadingIndicator();
+      
+        try {
+          console.log('JIII');
+          const response = await fetch('http://127.0.0.1:5000/llm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: message }),
+          });
+      
+          const reader = response.body?.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+      
+          if (reader) {
+            const readChunk = async () => {
+              const { done, value } = await reader.read();
+              if (done) {
+                if (buffer) {
+                  for (const char of buffer) {
+                    if (loadingIndicator){
+                      loadingIndicator.remove();
+                    }
+                    addMessageToChat('bot', char, true);
+                    await new Promise((resolve) => setTimeout(resolve, 5)); // 5 milliseconds delay
+                  }
+                }
+                return;
+              }
+      
+              buffer += decoder.decode(value, { stream: true });
+              const messages = buffer.split('\n');
+              buffer = messages.pop() || '';
+      
+              for (const msg of messages) {
+                if (msg) {
+                  for (const char of msg) {
+                    if (loadingIndicator){
+                      loadingIndicator.remove();
+                    }
+                    addMessageToChat('bot', char, true);
+                    await new Promise((resolve) => setTimeout(resolve, 5)); // 5 milliseconds delay
+                  }
+                }
+              }
+      
+              readChunk();
+            };
+      
+            readChunk();
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          loadingIndicator.remove();
+          addMessageToChat('bot', "Sorry, there was an error processing your request.");
+        }
+      };
+      
 
       if (isLoading) return <ChatbotLoadingSkeleton/>
       if (!chatbot) return <p>No profile data</p>
@@ -118,7 +147,7 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
         </h1>
       <div className="text-xs md:text-base chat-container w-2/3 max-w-4xl bg-white shadow-md rounded-lg mt-5 p-5 flex flex-col overflow-y-auto h-[30rem]">
         {chatHistory.length > 0 && chatHistory.map((msg, index) => (
-          <div key={index} className={`chat-bubble ${msg.sender === 'user' ? 'self-end bg-primary text-white' : 'self-start bg-primary text-white'} p-3 m-1 rounded-xl`}>
+          <div key={index} className={`chat-bubble max-w-[55%] ${msg.sender === 'user' ? 'self-end bg-primary text-white' : 'self-start bg-primary text-white'} p-3 m-1 rounded-xl`}>
             {msg.text}
           </div>
         ))}

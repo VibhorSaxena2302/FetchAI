@@ -25,7 +25,7 @@ class llm:
         if not found:
             print('All API keys exhausted.')
 
-    def generate(self, prompt, mode='Stream', char_threshold=100):
+    def generate(self, prompt, mode='Stream', char_threshold=20):
         if mode == 'Stream':
             return self.stream_generate(prompt, char_threshold)
         else:
