@@ -106,3 +106,33 @@ export async function deleteChatbotById(chatbotId: number): Promise<boolean> {
         return false
     }
 }
+
+type UpdateChatbotInput = {
+    id: number;
+    description?: string | null;
+    role?: string | null;
+};
+
+export async function updateChatbotById({ id, description, role }: UpdateChatbotInput): Promise<boolean> {
+    if (!id) {
+        console.error('Chatbot ID is null.');
+        return false
+    }
+
+    try {
+        const updatedChatbot = await prisma.chatbots.update({
+            where: { id: id },
+            data: {
+                description: description,
+                role: role,
+                updated_at: new Date(),  // Optional: Manually set the updated_at time
+            },
+        });
+
+        console.log('Chatbot updated successfully:', updatedChatbot);
+        return true
+    } catch (error) {
+        console.error('Error updating chatbot:', error);
+        return false
+    }
+}

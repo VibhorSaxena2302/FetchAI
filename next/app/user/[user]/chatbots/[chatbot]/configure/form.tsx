@@ -38,7 +38,6 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
         if (chatbotId) {
             const fetchData = async () => {
             try {
-                console.log(chatbotId)
                 const response = await fetch('/api/chatbot_data', {
                     method: 'POST',
                     headers: {
@@ -70,9 +69,26 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
 };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      // Post data to the API
-      console.log(formData);
+    e.preventDefault();
+    // Post data to the API
+    const document_name = null
+    const document_url = null
+
+    const response = await fetch('/api/update_chatbot', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 'id':chatbotId, 'description':formData.description, 'role':formData.role, 'document_name':document_name, 'document_url':document_url}),
+    });
+
+    if (response.ok) {
+        console.log('Chatbot updated successfully');
+            router.push(`/user/${username}/chatbots/${chatbotId}`); // Use the retrieved chatbot ID
+    } else {
+        setisFailed(true)
+        console.error('Failed to update chatbot');
+    }
   };
 
   const deleteChatbot = async (id: number) => {
@@ -87,8 +103,7 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
         if (!response.ok) {
             throw new Error('Failed to delete the chatbot');
         }
-        // Assuming the deletion was successful, redirect here
-        router.push(`/user/${username}/chatbots`); // Adjust the URL as needed
+        router.push(`/user/${username}/chatbots`);
     } catch (error) {
         console.error('Error:', error);
     }
