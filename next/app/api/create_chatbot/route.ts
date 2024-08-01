@@ -14,7 +14,8 @@ export async function POST(
   const username = cookieObject ? cookieObject.value : 'undefined';
 
   if (req.method === 'POST' && username != 'undefined') {
-    const { name, description } = await new Response(req.body).json();
+    const { name, description, role } = await new Response(req.body).json();
+    console.log(role)
     try {
       const existingChatbot = await prisma.chatbots.findFirst({
         where: {
@@ -36,7 +37,8 @@ export async function POST(
         data: {
           name,
           description,
-          creator_id: userid
+          creator_id: userid,
+          role
         },
       });
       return NextResponse.json({ chatbot: newChatbot }, {status: 201});

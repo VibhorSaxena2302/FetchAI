@@ -15,17 +15,17 @@ const CreateComponent: React.FC<CreateProps> = ({username = 'undefined'}) => {
     
     const [formData, setFormData] = useState({
         name: '',
-        description: ''
+        description: '',
+        role: ''
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: { target: { name: any; value: any; }; }) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         // Post data to the API
-        console.log(formData);
         const response = await fetch('/api/create_chatbot', {
             method: 'POST',
             headers: {
@@ -68,14 +68,29 @@ const CreateComponent: React.FC<CreateProps> = ({username = 'undefined'}) => {
                         </div>
                         <div>
                             <label htmlFor="description" className="text-sm font-medium text-tc">Description</label>
-                            <input
-                                type="text"
+                            <textarea
                                 id="description"
                                 name="description"
                                 value={formData.description}
+                                placeholder='Chatbot description'
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-a78bfa rounded-md"
+                                rows={4} // Set the initial number of rows
+                                style={{ resize: "vertical" }} // Allows resizing only vertically
                                 required
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="role" className="text-sm font-medium text-tc">Role</label>
+                            <textarea
+                                id="role"
+                                name="role"
+                                value={formData.role}
+                                placeholder='Chatbot traits'
+                                onChange={handleChange}
+                                className="mt-1 block w-full px-3 border border-a78bfa rounded-md"
+                                rows={4} // Set the initial number of rows
+                                style={{ resize: "vertical" }} // Allows resizing only vertically
                             />
                         </div>
                         {isFailed && (

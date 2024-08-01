@@ -27,9 +27,20 @@ model chatbots {
   id           Int       @id @default(autoincrement())
   name         String    @unique
   description  String?
+  role         String?
   creator_id   Int
   created_at   DateTime  @default(now())
   updated_at   DateTime  @default(now())
-  document_url String?   
+  document_id  Int? 
+  document     documents? @relation(fields: [document_id], references: [id]) 
   creator      users     @relation(fields: [creator_id], references: [id])
+}
+
+model documents {
+  id           Int      @id @default(autoincrement())
+  name         String   @unique
+  url          String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now())
+  chatbots     chatbots[]
 }

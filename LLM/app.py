@@ -30,7 +30,7 @@ async def uPdf():
         print(e)
         return f"unsuccessful agent call: {str(e)}" 
 
-@app.route('/llm', methods=['POST'])
+@app.route('/api//llm', methods=['POST'])
 def chat():
     data = request.get_json()
     prompt = data.get('query', '')

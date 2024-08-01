@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { ChatbotLoadingSkeleton } from '@/app/ui/skeletons';
+import Link from 'next/link';
 
 type ChatbotProps = {
   username?: string;
@@ -11,6 +12,7 @@ type ChatbotProps = {
 interface Chatbot {
   name: string;
   description: string | null;
+  role: string | null;
 }
 
 const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
@@ -28,7 +30,6 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
         if (chatbotId) {
             const fetchData = async () => {
             try {
-                console.log(chatbotId)
                 const response = await fetch('/api/chatbot_data', {
                     method: 'POST',
                     headers: {
@@ -48,6 +49,9 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
             fetchData();
         }
     }, [chatbotId]);
+
+    if (isLoading) return <ChatbotLoadingSkeleton/>
+    if (!chatbot) return <p>No profile data</p>
 
     const addMessageToChat = (sender:string, text:string, append = false) => {
       setChatHistory((prevHistory) => {
@@ -79,13 +83,14 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
         addMessageToChat('user', message);
         setMessage('');
         const loadingIndicator = addLoadingIndicator();
-      
+
+        const prompt = `You are given the following role, answer the query following your role. If no role is specified, act like a normal AI bot.\n: ${chatbot.role} \n\n Query: ${message}`
+        
         try {
-          console.log('JIII');
-          const response = await fetch('http://127.0.0.1:5000/llm', {
+          const response = await fetch('http://127.0.0.1:5003/api/llm', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: message }),
+            body: JSON.stringify({ query: prompt }),
           });
       
           const reader = response.body?.getReader();
@@ -135,16 +140,17 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
           addMessageToChat('bot', "Sorry, there was an error processing your request.");
         }
       };
-      
-
-      if (isLoading) return <ChatbotLoadingSkeleton/>
-      if (!chatbot) return <p>No profile data</p>
 
   return (
-    <div className="flex flex-col items-center">
-      <h1 className="text-xl md:text-3xl font-bold text-primary py-8">
+    <div className="flex flex-col items-center py-8">
+      <div className="flex space-x-8 bg-white justify-between items-center shadow-inner shadow-secondary rounded"> 
+      <h1 className="text-xl md:text-3xl font-bold text-primary pl-8">
             {chatbot.name}
         </h1>
+        <Link href={`/user/${username}/chatbots/${chatbotId}/configure`} className="bg-primary hover:bg-accent text-white font-bold py-2 px-4 rounded">
+            Configure
+        </Link>
+        </div>
       <div className="text-xs md:text-base chat-container w-2/3 max-w-4xl bg-white shadow-md rounded-lg mt-5 p-5 flex flex-col overflow-y-auto h-[30rem]">
         {chatHistory.length > 0 && chatHistory.map((msg, index) => (
           <div key={index} className={`chat-bubble max-w-[55%] ${msg.sender === 'user' ? 'self-end bg-primary text-white' : 'self-start bg-primary text-white'} p-3 m-1 rounded-xl`}>

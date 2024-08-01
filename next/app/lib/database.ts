@@ -60,10 +60,10 @@ export async function getChatbotById(chatbotId: number): Promise<Chatbot | null>
             },
             select: {
                 name: true, 
-                description: true
+                description: true,
+                role: true
             },
         });
-        console.log(chatbot)
         if (chatbot) {
             return chatbot;
         } else {
@@ -73,5 +73,36 @@ export async function getChatbotById(chatbotId: number): Promise<Chatbot | null>
     } catch (error) {
         console.error('Error checking chatbot existence:', error);
         return null;
+    }
+}
+
+export async function deleteChatbotById(chatbotId: number): Promise<boolean> {
+    try {
+        // Start a transaction
+        await prisma.$transaction(async (prisma) => {
+            // Delete linked documents first
+            await prisma.documents.deleteMany({
+                where: {
+                    chatbots: {
+                        some: {
+                            id: chatbotId,
+                        },
+                    },
+                },
+            });
+
+            // Delete the chatbot
+            await prisma.chatbots.delete({
+                where: {
+                    id: chatbotId,
+                },
+            });
+        });
+
+        console.log('Chatbot and linked documents deleted successfully');
+        return true
+    } catch (error) {
+        console.error('Failed to delete chatbot:', error);
+        return false
     }
 }
