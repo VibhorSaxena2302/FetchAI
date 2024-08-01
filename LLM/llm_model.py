@@ -14,7 +14,8 @@ class llm:
                     message='Say hi',
                     temperature=0.7,
                     k=0,
-                    p=0.75
+                    p=0.75,
+                    max_tokens=100
                 )
                 found = True
                 break
@@ -39,7 +40,8 @@ class llm:
                     message=prompt,
                     temperature=0.7,
                     k=0,
-                    p=0.75
+                    p=0.75,
+                    max_tokens=500
                 )
                 return response.text
             except:
@@ -57,7 +59,8 @@ class llm:
                     message=prompt,
                     temperature=0.7,
                     k=0,
-                    p=0.75
+                    p=0.75,
+                    max_tokens=500
                 ):
                     if event.event_type == "text-generation":
                         response_text += event.text
