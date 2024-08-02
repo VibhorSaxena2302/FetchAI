@@ -13,22 +13,22 @@ type ChatbotProps = {
 interface Chatbot {
   name: string;
   description: string | null;
-  role: string | null
+  role: string | null;
+  document_name: string | null;
 }
 
 const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
     const router = useRouter();
 
     const [isFailed, setisFailed] = useState(false);
-    
+
+    const [chatbot, setChatbot] = useState<Chatbot | null>(null);
+    const [isLoading, setLoading] = useState(true)
     const [formData, setFormData] = useState({
         description: '',
         role: '',
         file: null
     });
-
-    const [chatbot, setChatbot] = useState<Chatbot | null>(null);
-    const [isLoading, setLoading] = useState(true)
 
     const pathname = usePathname();
     const parts = pathname.split('/');
@@ -45,8 +45,15 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
                     },
                     body: JSON.stringify({ 'chatbotid': chatbotId }),
                 });
-                const result = await response.json();
-                setChatbot(result.chatbot);
+                if (response.ok){
+                    const result = await response.json();
+                    setChatbot(result.chatbot);
+                    setFormData({
+                        description: result.chatbot.description || '',
+                        role: result.chatbot.role || '',
+                        file: null // Presuming you handle file separately or reset it
+                    });
+                }
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -58,6 +65,9 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
         }
     }, [chatbotId]);
 
+    console.log(formData)
+
+    console.log(formData)
     const handleChange = (event: { target: { name: any; value: any;}; }) => {
       const { name, value } = event.target;
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -74,16 +84,16 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
     let document_name = null
     let document_url = null
 
-    const fileform = new FormData();
-    fileform.append('username', username);
-    fileform.append('chatbotid', chatbotId.toString());
-
-    await fetch('http://127.0.0.1:5003/api/deletepdf', {
-        method: 'POST',
-        body: fileform,
-    });
-
     if (formData.file) {
+        const fileform = new FormData();
+        fileform.append('username', username);
+        fileform.append('chatbotid', chatbotId.toString());
+    
+        await fetch('http://127.0.0.1:5003/api/deletepdf', {
+            method: 'POST',
+            body: fileform,
+        });
+
         fileform.append('file', formData.file);
         console.log(formData.file)
         
@@ -171,7 +181,6 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
                             id="description"
                             name="description"
                             value={formData.description}
-                            placeholder={chatbot.description ?? ''}
                             onChange={handleChange}
                             className="mt-1 block w-full px-3 py-2 border border-a78bfa rounded-md"
                             rows={4} // Set the initial number of rows
@@ -184,7 +193,6 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
                                 id="role"
                                 name="role"
                                 value={formData.role}
-                                placeholder={chatbot.role ?? ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 border border-a78bfa rounded-md"
                                 rows={4} // Set the initial number of rows
@@ -192,7 +200,12 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
                             />
                         </div>
                         <div>
-                          <label htmlFor="file" className="text-sm font-medium text-tc">PDF</label>
+                            {chatbot && chatbot.document_name && (
+                                <label htmlFor="file" className="text-sm font-medium text-tc">PDF ({chatbot.document_name})</label>
+                            )}
+                          {!chatbot.document_name && (
+                            <label htmlFor="file" className="text-sm font-medium text-tc">PDF</label>
+                          )}
                           <input
                               type="file"
                               id="file"

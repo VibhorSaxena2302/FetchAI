@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from 'next/headers'
-import { updateChatbotById } from "@/app/lib/database";
+import { updateChatbotById, updateChatbotWithDocument } from "@/app/lib/database";
 
 export async function POST(req: Request) {
     const cookieStore = cookies()
@@ -17,6 +17,12 @@ export async function POST(req: Request) {
         }
         return NextResponse.json({ error: 'Failed to update chatbot' }, {status: 409});
       }
+      const result = await updateChatbotWithDocument({id, description, role, document_name, document_url})
+
+      if (result == true){
+          return NextResponse.json({ result }, {status: 201});
+      }
+      return NextResponse.json({ error: 'Failed to update chatbot' }, {status: 409});
     } else {
       return NextResponse.json({ error: 'Method ${req.method} Not Allowed' }, {status: 405});
     }
