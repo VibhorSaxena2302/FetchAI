@@ -215,7 +215,13 @@ def chat():
     query = data.get('query', '')
     role = data.get('role', '')
     url = data.get('url', '')
-    print(role, url, query)
+    history = data.get('chathistory', '')
+
+    chathistory = ''
+
+    for message in history:
+        chathistory += f'\nSender: {message['sender']}'
+        chathistory += f'Message: {message['text']}\n'
 
     context_text = None
 
@@ -238,6 +244,9 @@ def chat():
 
     if context_text:
         prompt += f'### CONTEXT ### \n\n {context_text}\n\n'
+
+    if len(history) > 0:
+        prompt += f'### CHAT HISTORY ### \n\n {chathistory}\n\n'
 
     if role:
         prompt = f'You are given the following role, answer the query following your role in less than 150 words. If no role is specified, act like a normal AI bot.\n: {role} \n\n Query: {query}'

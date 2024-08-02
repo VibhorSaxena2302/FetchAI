@@ -17,12 +17,14 @@ interface Chatbot {
 }
 
 const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
+    const chatbotMaxMemory = 4
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const [chatbot, setChatbot] = useState<Chatbot | null>(null);
     const [isLoading, setLoading] = useState(true)
     
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState<{ sender: string; text: string }[]>([]);
+    const [totalHistory, setTotalHistory] = useState<{ sender: string; text: string }[]>([]);
 
     const pathname = usePathname();
     const parts = pathname.split('/');
@@ -87,6 +89,13 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
       });
     };
 
+    const addMessageToTotalHistory = (sender: string, text: string) => {
+        setTotalHistory(prevHistory => {
+            const newHistory = [...prevHistory, { sender, text }].slice(-chatbotMaxMemory);
+            return newHistory;
+        });
+    };
+
       const addLoadingIndicator = () => {
         const loadingIndicator = { sender: 'bot', text: '...' };
         setChatHistory((prevHistory) => [...prevHistory, loadingIndicator]);
@@ -98,21 +107,25 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
       const handleMessageSend = async () => {
         if (!message.trim()) return;
         addMessageToChat('user', message);
+        addMessageToTotalHistory('user', message);
         setMessage('');
+
         const loadingIndicator = addLoadingIndicator();
         try {
           const response = await fetch('http://127.0.0.1:5003/api/llm', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: message, role: chatbot.role, url: chatbot.document_url }),
+            body: JSON.stringify({ query: message, role: chatbot.role, url: chatbot.document_url, chathistory:totalHistory }),
           });
       
           const reader = response.body?.getReader();
           const decoder = new TextDecoder();
           let buffer = '';
-      
+          let msg0 = '';
+
           if (reader) {
             const readChunk = async () => {
+              
               const { done, value } = await reader.read();
               if (done) {
                 if (buffer) {
@@ -120,10 +133,12 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
                     if (loadingIndicator){
                       loadingIndicator.remove();
                     }
+                    msg0 += char
                     addMessageToChat('bot', char, true);
                     await new Promise((resolve) => setTimeout(resolve, 5)); // 5 milliseconds delay
                   }
                 }
+                addMessageToTotalHistory('chatbot', msg0);
                 return;
               }
       
@@ -137,10 +152,12 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
                     if (loadingIndicator){
                       loadingIndicator.remove();
                     }
+                    msg0 += char
                     addMessageToChat('bot', char, true);
                     await new Promise((resolve) => setTimeout(resolve, 5)); // 5 milliseconds delay
                   }
                 }
+                msg0 += '\n'
                 addMessageToChat('bot', '\n');
               }
       
