@@ -19,7 +19,7 @@ interface Chatbot {
 const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
     const [chatbot, setChatbot] = useState<Chatbot | null>(null);
     const [isLoading, setLoading] = useState(true)
-
+    
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState<{ sender: string; text: string }[]>([]);
 
@@ -81,11 +81,9 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
 
       const handleMessageSend = async () => {
         if (!message.trim()) return;
-      
         addMessageToChat('user', message);
         setMessage('');
         const loadingIndicator = addLoadingIndicator();
-        
         try {
           const response = await fetch('http://127.0.0.1:5003/api/llm', {
             method: 'POST',
@@ -127,6 +125,7 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
                     await new Promise((resolve) => setTimeout(resolve, 5)); // 5 milliseconds delay
                   }
                 }
+                addMessageToChat('bot', '\n');
               }
       
               readChunk();
@@ -151,13 +150,19 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
             Configure
         </Link>
         </div>
-      <div className="text-xs md:text-base chat-container w-2/3 max-w-4xl bg-white shadow-md rounded-lg mt-5 p-5 flex flex-col overflow-y-auto h-[30rem]">
-        {chatHistory.length > 0 && chatHistory.map((msg, index) => (
-          <div key={index} className={`chat-bubble max-w-[55%] ${msg.sender === 'user' ? 'self-end bg-primary text-white' : 'self-start bg-primary text-white'} p-3 m-1 rounded-xl`}>
-            {msg.text}
-          </div>
-        ))}
-      </div>
+        <div className="text-xs md:text-base chat-container w-2/3 max-w-4xl bg-white shadow-md rounded-lg mt-5 p-5 flex flex-col overflow-y-auto h-[30rem]">
+          {chatHistory.length > 0 && chatHistory.map((msg, index) => {
+            const messageContent = msg.text.trim();  // Trim whitespace from message text
+            if (messageContent) {  // Only render non-empty messages
+              return (
+                <div key={index} className={`chat-bubble max-w-[55%] ${msg.sender === 'user' ? 'self-end bg-primary text-white' : 'self-start bg-primary text-white'} p-3 m-1 rounded-xl`}>
+                  {msg.text}
+                </div>
+              );
+            }
+            return null;  // Don't render anything for empty messages
+          })}
+        </div>
       <div className="text-sm md:text-base input-container w-2/3 max-w-4xl flex mt-5">
         <input
           type="text"
