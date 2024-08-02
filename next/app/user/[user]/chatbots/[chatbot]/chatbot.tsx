@@ -13,6 +13,7 @@ interface Chatbot {
   name: string;
   description: string | null;
   role: string | null;
+  document_url: string | null;
 }
 
 const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
@@ -38,6 +39,7 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
                     body: JSON.stringify({ 'chatbotid': chatbotId }),
                 });
                 const result = await response.json();
+                console.log(result.chatbot)
                 setChatbot(result.chatbot);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -83,14 +85,12 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
         addMessageToChat('user', message);
         setMessage('');
         const loadingIndicator = addLoadingIndicator();
-
-        const prompt = `You are given the following role, answer the query following your role in less than 150 words. If no role is specified, act like a normal AI bot.\n: ${chatbot.role} \n\n Query: ${message}`
         
         try {
           const response = await fetch('http://127.0.0.1:5003/api/llm', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: prompt }),
+            body: JSON.stringify({ query: message, role: chatbot.role, url: chatbot.document_url }),
           });
       
           const reader = response.body?.getReader();

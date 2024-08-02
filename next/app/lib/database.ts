@@ -47,7 +47,8 @@ export async function getChatbotsByUserId(userId: number) {
     name: string;
     description: string | null;
     role: string | null;
-    document_name: string | null
+    document_name: string | null;
+    document_url: string | null;
   };
   
 export async function getChatbotById(chatbotId: number): Promise<Chatbot | null> {
@@ -74,13 +75,14 @@ export async function getChatbotById(chatbotId: number): Promise<Chatbot | null>
                     id: chatbot.document_id,
                 },
                 select: {
-                    name: true
+                    name: true,
+                    url: true
                 },
             });
         }
         if (chatbot) {
             if (document!=null){
-                return {'name':chatbot.name, 'description':chatbot.description, 'role':chatbot.role, 'document_name':document.name}
+                return {'name':chatbot.name, 'description':chatbot.description, 'role':chatbot.role, 'document_name':document.name, 'document_url':document.url}
             }
             return chatbot;
         } else {

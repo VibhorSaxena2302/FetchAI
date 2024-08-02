@@ -8,6 +8,9 @@ import os
 import shutil
 import chroma
 import tempfile
+from datetime import datetime, timedelta
+from apscheduler.schedulers.background import BackgroundScheduler
+import atexit
 
 app = Flask(__name__)
 
@@ -15,6 +18,10 @@ CORS(app)
 llm = llm_model.llm()
 
 uPDF_AGENT_ADDRESS = 'agent1qgs4vrgf72qnkffkn66a36rt2h6p2zcuaaqrstqzuj0a8x2el2m52jd7zrz'
+
+# Dictionary to keep track of loaded databases
+loaded_dbs = {}
+last_access_times = {}
 
 class PDFQuery(Model):
     pdf_url: str
@@ -80,6 +87,49 @@ def delete_folder(bucket_name, folder_name):
         blob.delete()
         print(f"Blob {blob.name} deleted.")
         
+def download_chromadb_from_gcs(url, temp_dir):
+    # Assuming the URL format is "https://storage.googleapis.com/[BUCKET_NAME]/[FILE_PATH]"
+    if not url.startswith('https://storage.googleapis.com/'):
+        raise ValueError("Invalid URL provided")
+
+    # Parse the bucket name and blob path from the URL
+    parts = url.split('/', 4)  # Splits into ['https:', '', 'storage.googleapis.com', '[BUCKET_NAME]', '[FILE_PATH]']
+    bucket_name = parts[3]
+    blob_path = parts[4]
+
+    # Initialize the GCS client and get the bucket
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+
+    # Get the blobs in the specified directory
+    blobs = bucket.list_blobs(prefix=blob_path)
+    for blob in blobs:
+        # Create the local path preserving the structure
+        local_path = os.path.join(temp_dir, blob.name)
+        os.makedirs(os.path.dirname(local_path), exist_ok=True)
+        # Download the blob to the local path
+        blob.download_to_filename(local_path)
+        print(f"Downloaded {blob.name} to {local_path}")
+
+def cleanup_old_directories():
+    """Cleanup old directories that have not been accessed for more than an hour."""
+    current_time = datetime.now()
+    expired_dirs = [url for url, last_accessed in last_access_times.items() if current_time - last_accessed > timedelta(hours=1)]
+    for url in expired_dirs:
+        shutil.rmtree(loaded_dbs[url])
+        del loaded_dbs[url]
+        del last_access_times[url]
+        print(f"Removed temporary directory for URL {url}")
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=cleanup_old_directories, trigger="interval", minutes=10)
+
+def cleanup_directories():
+    for directory in loaded_dbs.values():
+        if os.path.exists(directory):
+            shutil.rmtree(directory)
+            print(f"Cleaned up directory: {directory}")
+
 @app.route('/api/uploadpdf', methods=['POST'])
 async def uploadPdf():
     try:
@@ -162,9 +212,39 @@ async def uPdf():
 @app.route('/api//llm', methods=['POST'])
 def chat():
     data = request.get_json()
-    prompt = data.get('query', '')
+    query = data.get('query', '')
+    role = data.get('role', '')
+    url = data.get('url', '')
+    print(role, url, query)
+
+    context_text = None
+
+    if url:
+        url += '/ChromaDB'
+        if url not in loaded_dbs.keys():
+            temp_dir = tempfile.mkdtemp()
+            temp_chromadb_path = os.path.join(temp_dir, 'ChromaDB')
+            loaded_dbs[url] = temp_dir
+            download_chromadb_from_gcs(url, temp_chromadb_path)
+            print(f"Created temporary directory for URL {url}")
+        temp_dir = loaded_dbs[url]
+        temp_chromadb_path = temp_dir+'/ChromaDB'
+        last_access_times[url] = datetime.now() 
+        db = chroma.get_chroma(temp_chromadb_path)
+        results = db.similarity_search_with_score(query, k=2)
+        context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results]).replace('\n', ' ')
+
+    prompt = f'Answer the following query. Do not exceed 150 words:\n\n Query: {query}'
+
+    if context_text:
+        prompt += f'### CONTEXT ### \n\n {context_text}\n\n'
+
+    if role:
+        prompt = f'You are given the following role, answer the query following your role in less than 150 words. If no role is specified, act like a normal AI bot.\n: {role} \n\n Query: {query}'
 
     return Response(llm.generate(prompt), content_type='text/plain')
 
 if __name__ == '__main__':
+    atexit.register(cleanup_directories)
+    scheduler.start()
     app.run(use_reloader=False, port=5003)
