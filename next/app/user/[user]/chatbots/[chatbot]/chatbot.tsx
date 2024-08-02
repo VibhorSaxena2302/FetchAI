@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { ChatbotLoadingSkeleton } from '@/app/ui/skeletons';
 import Link from 'next/link';
@@ -17,6 +17,7 @@ interface Chatbot {
 }
 
 const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
+    const chatContainerRef = useRef<HTMLDivElement>(null);
     const [chatbot, setChatbot] = useState<Chatbot | null>(null);
     const [isLoading, setLoading] = useState(true)
     
@@ -51,6 +52,21 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
             fetchData();
         }
     }, [chatbotId]);
+
+    const scrollToBottom = () => {
+        if (chatContainerRef.current) {
+            const { scrollHeight, clientHeight, scrollTop } = chatContainerRef.current;
+            const isAtBottom = scrollHeight - Math.ceil(scrollTop + clientHeight) <= 50; // tolerance of 50 pixels
+    
+            if (isAtBottom) {
+                chatContainerRef.current.scrollTop = scrollHeight - clientHeight;
+            }
+        }
+    };
+
+    useEffect(() => {
+      scrollToBottom();
+    }, [chatHistory]); 
 
     if (isLoading) return <ChatbotLoadingSkeleton/>
     if (!chatbot) return <p>No profile data</p>
@@ -150,7 +166,7 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
             Configure
         </Link>
         </div>
-        <div className="text-xs md:text-base chat-container w-2/3 max-w-4xl bg-white shadow-md rounded-lg mt-5 p-5 flex flex-col overflow-y-auto h-[30rem]">
+        <div className="text-xs md:text-base chat-container w-2/3 max-w-4xl bg-white shadow-md rounded-lg mt-5 p-5 flex flex-col overflow-y-auto h-[30rem]" ref={chatContainerRef}>
           {chatHistory.length > 0 && chatHistory.map((msg, index) => {
             const messageContent = msg.text.trim();  // Trim whitespace from message text
             if (messageContent) {  // Only render non-empty messages
