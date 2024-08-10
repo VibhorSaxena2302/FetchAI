@@ -8,7 +8,7 @@ The platform is built using Next.js for the frontend, PostgreSQL for database ma
 
 # Key Features
 
-  •	User Authentication: Users can sign up and log in to manage their chatbots.__
+  •	User Authentication: Users can sign up and log in to manage their chatbots.<br/>
   •	Custom Chatbots: Create and configure chatbots with:__
   •	Name: Give your chatbot a unique identity.__
   •	Description: Define the purpose and goals of the chatbot.__
