@@ -9,118 +9,118 @@ The platform is built using Next.js for the frontend, PostgreSQL for database ma
 # Key Features
 
   •	User Authentication: Users can sign up and log in to manage their chatbots.<br/>
-  •	Custom Chatbots: Create and configure chatbots with:__
-  •	Name: Give your chatbot a unique identity.__
-  •	Description: Define the purpose and goals of the chatbot.__
-  •	Role: Assign a specific role to the chatbot, such as roleplaying as a particular character or entity.__
-  •	PDF Knowledge Upload: Users can upload PDFs to equip their chatbot with specific knowledge from the document. The bot can then respond based on the content of the uploaded PDF.__
-  •	Context Extraction: Using Retrieval-Augmented Generation (RAG) with ChromaDB, chatbots can extract and utilize relevant context from the uploaded PDFs during conversations.__
-  •	Dynamic Prompt Generation: The platform uses a uAgent called uPrompt to dynamically generate prompts by combining user-provided parameters like context extraction, role, and 		chat history.__
+  •	Custom Chatbots: Create and configure chatbots with:<br/>
+  •	Name: Give your chatbot a unique identity.<br/>
+  •	Description: Define the purpose and goals of the chatbot.<br/>
+  •	Role: Assign a specific role to the chatbot, such as roleplaying as a particular character or entity.<br/>
+  •	PDF Knowledge Upload: Users can upload PDFs to equip their chatbot with specific knowledge from the document. The bot can then respond based on the content of the uploaded PDF.<br/>
+  •	Context Extraction: Using Retrieval-Augmented Generation (RAG) with ChromaDB, chatbots can extract and utilize relevant context from the uploaded PDFs during conversations.<br/>
+  •	Dynamic Prompt Generation: The platform uses a uAgent called uPrompt to dynamically generate prompts by combining user-provided parameters like context extraction, role, and 		chat history.<br/>
 
 # Technical Details
 
 # Frontend
 
-  •	Framework: Next.js__
-  •	Hosting: Vercel__
-  •	Database: PostgreSQL__
+  •	Framework: Next.js<br/>
+  •	Hosting: Vercel<br/>
+  •	Database: PostgreSQL<br/>
 
 # Backend
 
-  •	Framework: Python with Flask__
-  •	Containerization: Docker__
-  •	Hosting: Render (Free Plan)__
-  •	Storage: Google Cloud Storage__
-  •	Context Management: ChromaDB__
+  •	Framework: Python with Flask<br/>
+  •	Containerization: Docker<br/>
+  •	Hosting: Render (Free Plan)<br/>
+  •	Storage: Google Cloud Storage<br/>
+  •	Context Management: ChromaDB<br/>
 
  # Known Limitations
 
-  •	Backend Startup Delay: Since the backend is hosted on a free Render plan, it may take 10 to 15 minutes for the backend to start if it has been inactive.__
-  •	PDF Upload Restrictions: Due to memory limitations on the free plan, PDF upload functionality is not supported.__
-   # You may run locally to avoid these limitations.__
+  •	Backend Startup Delay: Since the backend is hosted on a free Render plan, it may take 10 to 15 minutes for the backend to start if it has been inactive.<br/>
+  •	PDF Upload Restrictions: Due to memory limitations on the free plan, PDF upload functionality is not supported.<br/>
+   # You may run locally to avoid these limitations.<br/>
 
 # Running uChat Locally
 
-To run the uChat platform locally, follow these steps:__
+To run the uChat platform locally, follow these steps:<br/>
 
 # Prerequisites
 
-  •	Node.js and npm / pnpm installed__
-  •	Python and pip installed__
-  •	Docker installed and running (optional)__
-  •	PostgreSQL installed and running__
-  •	Google Cloud Storage access and API key__
+  •	Node.js and npm / pnpm installed<br/>
+  •	Python and pip installed<br/>
+  •	Docker installed and running (optional)<br/>
+  •	PostgreSQL installed and running<br/>
+  •	Google Cloud Storage access and API key<br/>
 
  # Frontend Setup
 
-  1.	Clone the repository:__
+  1.	Clone the repository:<br/>
      
-  ```git clone https://github.com/VibhorSaxena2302/FetchAI```__
-  ```cd next```__
+  ```git clone https://github.com/VibhorSaxena2302/FetchAI```<br/>
+  ```cd next```<br/>
 
-  2.	Install the dependencies:__
+  2.	Install the dependencies:<br/>
 
-  ```npm install```__
+  ```npm install```<br/>
         OR
-  ```pnpm install```__
+  ```pnpm install```<br/>
 
-  3.	Create a .env.local file in the root directory with primsa database content (Hosted online). For ease, use vercel to directly connect with postgreSQL:__
-  ```POSTGRES_URL="YOUR_POSTGRES_URL"```__
-  ```POSTGRES_PRISMA_URL="YOUR_POSTGRES_PRISMA_URL"```__
-  ```POSTGRES_URL_NO_SSL="YOUR_POSTGRES_URL_NO_SSL"```__
-  ```POSTGRES_URL_NON_POOLING="YOUR_POSTGRES_URL_NON_POOLING"```__
-  ```POSTGRES_USER="YOUR_POSTGRES_USER"```__
-  ```POSTGRES_HOST="YOUR_POSTGRES_HOST"```__
-  ```POSTGRES_PASSWORD="YOUR_POSTGRES_PASSWORD"```__
-  ```POSTGRES_DATABASE="YOUR_POSTGRES_DATABASE"```__
-  ```DATABASE_URL="YOUR_DATABASE_URL"```__
+  3.	Create a .env.local file in the root directory with primsa database content (Hosted online). For ease, use vercel to directly connect with postgreSQL:<br/>
+  ```POSTGRES_URL="YOUR_POSTGRES_URL"```<br/>
+  ```POSTGRES_PRISMA_URL="YOUR_POSTGRES_PRISMA_URL"```<br/>
+  ```POSTGRES_URL_NO_SSL="YOUR_POSTGRES_URL_NO_SSL"```<br/>
+  ```POSTGRES_URL_NON_POOLING="YOUR_POSTGRES_URL_NON_POOLING"```<br/>
+  ```POSTGRES_USER="YOUR_POSTGRES_USER"```<br/>
+  ```POSTGRES_HOST="YOUR_POSTGRES_HOST"```<br/>
+  ```POSTGRES_PASSWORD="YOUR_POSTGRES_PASSWORD"```<br/>
+  ```POSTGRES_DATABASE="YOUR_POSTGRES_DATABASE"```<br/>
+  ```DATABASE_URL="YOUR_DATABASE_URL"```<br/>
 
-  4.	Start the front-end development server:__
-  ```npm run dev```__
+  4.	Start the front-end development server:<br/>
+  ```npm run dev```<br/>
 
 # Backend Setup
 
-  1.	Navigate to the backend directory:__
-  ```cd LLM```__
+  1.	Navigate to the backend directory:<br/>
+  ```cd LLM```<br/>
 
-  2.	Create a Python virtual environment:__
-  ```python -m venv .venv```__
-  ```source venv/bin/activate``` (For Mac)__
-  ```.venv/Scripts/activate``` (For Windows)__
+  2.	Create a Python virtual environment:<br/>
+  ```python -m venv .venv```<br/>
+  ```source venv/bin/activate``` (For Mac)<br/>
+  ```.venv/Scripts/activate``` (For Windows)<br/>
 
-  3.	Install the dependencies:__
-  ```pip install -r requirements.txt```__
+  3.	Install the dependencies:<br/>
+  ```pip install -r requirements.txt```<br/>
 
-  4.	Set up environment variables for Google Cloud Storage in a .env file:__
-  ```GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/credentials.json```__
-  (The key can be found by creating a account on Google Cloud, creating a new project and downloading the json keyfile. Store the api_key in a folder like 'google_cloud_api_key' and      give the path to it)__
+  4.	Set up environment variables for Google Cloud Storage in a .env file:<br/>
+  ```GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/credentials.json```<br/>
+  (The key can be found by creating a account on Google Cloud, creating a new project and downloading the json keyfile. Store the api_key in a folder like 'google_cloud_api_key' and      give the path to it)<br/>
 
-  5.	Run the Flask application:__
-  ```python -m app```__
+  5.	Run the Flask application:<br/>
+  ```python -m app```<br/>
 
-  6.  Make sure to change the fetch url in frontend in scripts 'next/app/user/[user]/chatbots/[chatbot]/configure/form.tsx' and 'next/app/user/[user]/chatbots/[chatbot]/chatbot.tsx'     with the backend flask port url just before the '/api/llm'. i.e, replace 'https://uchat-wtwo.onrender.com' to local host url of flask in both files.__
+  6.  Make sure to change the fetch url in frontend in scripts 'next/app/user/[user]/chatbots/[chatbot]/configure/form.tsx' and 'next/app/user/[user]/chatbots/[chatbot]/chatbot.tsx'     with the backend flask port url just before the '/api/llm'. i.e, replace 'https://uchat-wtwo.onrender.com' to local host url of flask in both files.<br/>
 
 # Running Backend with Docker
 
-  1.	Build the Docker image:__
-  ```cd LLM```__
-  ```docker build -t uchat-backend .```__
+  1.	Build the Docker image:<br/>
+  ```cd LLM```<br/>
+  ```docker build -t uchat-backend .```<br/>
 
-  2.	Run the Docker container:__
-  ```docker run -p [YOUR_PORT]:5000 uchat-backend```__
+  2.	Run the Docker container:<br/>
+  ```docker run -p [YOUR_PORT]:5000 uchat-backend```<br/>
 
 # Accessing the Application (Locally)
 
-  Once both the frontend and backend are running, you can access the application in your browser at http://localhost:3000 (default) or whatever port you are running front-end at.__
+  Once both the frontend and backend are running, you can access the application in your browser at http://localhost:3000 (default) or whatever port you are running front-end at.<br/>
 
 # Accessing the Application (Online)
 
-  You can access the deployed version of uChat at this link: https://uchat-ivory.vercel.app/__
-  # Note: It may take 10 to 15 min to start the chat if the site has been inactive. This is due to the free plan on render which shuts down backend server if left inactive. PDF upload    will also not work due to not enough memory provided by render in the free plan.__
+  You can access the deployed version of uChat at this link: https://uchat-ivory.vercel.app/<br/>
+  # Note: It may take 10 to 15 min to start the chat if the site has been inactive. This is due to the free plan on render which shuts down backend server if left inactive. PDF upload    will also not work due to not enough memory provided by render in the free plan.<br/>
 
 # Contact
 
-For any inquiries or contributions, please reach out to us via our GitHub repository or email.__
+For any inquiries or contributions, please reach out to us via our GitHub repository or email.<br/>
 
 Thank you for using uChat! We hope this platform helps you create the most engaging and personalized chatbots possible.
 
