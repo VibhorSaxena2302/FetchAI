@@ -69,7 +69,7 @@ export async function getChatbotById(chatbotId: number): Promise<Chatbot | null>
             },
         });
         let document = null
-        if (chatbot.document_id){
+        if (chatbot && chatbot.document_id){
             document = await prisma.documents.findFirst({
                 where: {
                     id: chatbot.document_id,
@@ -84,7 +84,7 @@ export async function getChatbotById(chatbotId: number): Promise<Chatbot | null>
             if (document!=null){
                 return {'name':chatbot.name, 'description':chatbot.description, 'role':chatbot.role, 'document_name':document.name, 'document_url':document.url}
             }
-            return chatbot;
+            return {'name':chatbot.name, 'description':chatbot.description, 'role':chatbot.role, 'document_name':null, 'document_url':null};
         } else {
             console.log('Chatbot not found.');
             return null;
