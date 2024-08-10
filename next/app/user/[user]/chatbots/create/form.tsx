@@ -12,6 +12,7 @@ const CreateComponent: React.FC<CreateProps> = ({username = 'undefined'}) => {
     const router = useRouter();
 
     const [isFailed, setisFailed] = useState(false);
+    const [isWaiting, setisWaiting] = useState(false);
     
     const [formData, setFormData] = useState({
         name: '',
@@ -26,6 +27,7 @@ const CreateComponent: React.FC<CreateProps> = ({username = 'undefined'}) => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         // Post data to the API
+        setisWaiting(true)
         const response = await fetch('/api/create_chatbot', {
             method: 'POST',
             headers: {
@@ -43,6 +45,7 @@ const CreateComponent: React.FC<CreateProps> = ({username = 'undefined'}) => {
                 console.error('Chatbot ID not found in response');
             }
         } else {
+            setisWaiting(false)
             setisFailed(true)
             console.error('Failed to create chatbot');
         }
@@ -55,7 +58,7 @@ const CreateComponent: React.FC<CreateProps> = ({username = 'undefined'}) => {
                     <h2 className="text-lg font-semibold text-tc mb-4">Create a new Chatbot!</h2>
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
-                            <label htmlFor="name" className="text-sm font-medium text-tc">Name</label>
+                            <label htmlFor="name" className="text-sm font-medium text-tc">Name  <span style={{ color: 'red' }}>*</span></label>
                             <input
                                 type="text"
                                 id="name"
@@ -67,7 +70,7 @@ const CreateComponent: React.FC<CreateProps> = ({username = 'undefined'}) => {
                             />
                         </div>
                         <div>
-                            <label htmlFor="description" className="text-sm font-medium text-tc">Description</label>
+                            <label htmlFor="description" className="text-sm font-medium text-tc">Description  <span style={{ color: 'red' }}>*</span></label>
                             <textarea
                                 id="description"
                                 name="description"
@@ -93,6 +96,9 @@ const CreateComponent: React.FC<CreateProps> = ({username = 'undefined'}) => {
                                 style={{ resize: "vertical" }} // Allows resizing only vertically
                             />
                         </div>
+                        {isWaiting && (
+                            <div className="text-sm font-medium text-error">Please wait</div>
+                        )}
                         {isFailed && (
                             <div className="text-sm font-medium text-error">Name already exists.</div>
                         )}

@@ -21,6 +21,7 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
     const router = useRouter();
 
     const [isFailed, setisFailed] = useState(false);
+    const [isWaiting, setisWaiting] = useState(false);
 
     const [chatbot, setChatbot] = useState<Chatbot | null>(null);
     const [isLoading, setLoading] = useState(true)
@@ -83,13 +84,15 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
     // Post data to the API
     let document_name = null
     let document_url = null
+    
+    setisWaiting(true)
 
     if (formData.file) {
         const fileform = new FormData();
         fileform.append('username', username);
         fileform.append('chatbotid', chatbotId.toString());
-    
-        await fetch('http://127.0.0.1:5003/api/deletepdf', {
+        
+        await fetch('https://uchat-wtwo.onrender.com/api/deletepdf', {
             method: 'POST',
             body: fileform,
         });
@@ -97,7 +100,7 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
         fileform.append('file', formData.file);
         console.log(formData.file)
         
-        const response = await fetch('http://127.0.0.1:5003/api/uploadpdf', {
+        const response = await fetch('https://uchat-wtwo.onrender.com/api/uploadpdf', {
             method: 'POST',
             body: fileform,
           });
@@ -126,6 +129,7 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
             router.push(`/user/${username}/chatbots/${chatbotId}`); // Use the retrieved chatbot ID
             router.refresh()
     } else {
+        setisWaiting(false)
         setisFailed(true)
         console.error('Failed to update chatbot');
     }
@@ -136,6 +140,8 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
         const fileform = new FormData();
         fileform.append('username', username);
         fileform.append('chatbotid', chatbotId.toString());
+
+        setisWaiting(true)
 
         await fetch('http://127.0.0.1:5003/api/deletepdf', {
             method: 'POST',
@@ -155,6 +161,7 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
         router.push(`/user/${username}/chatbots`);
         router.refresh()
     } catch (error) {
+        setisWaiting(false)
         console.error('Error:', error);
     }
   };
@@ -215,6 +222,9 @@ const Form: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
                               accept="application/pdf"
                           />
                       </div>
+                        {isWaiting && (
+                            <div className="text-sm font-medium text-error">Please wait</div>
+                        )}
                         {isFailed && (
                             <div className="text-sm font-medium text-error">Internal error occured. Try again</div>
                         )}

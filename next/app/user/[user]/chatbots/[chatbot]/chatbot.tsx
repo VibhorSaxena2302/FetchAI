@@ -112,7 +112,7 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
 
         const loadingIndicator = addLoadingIndicator();
         try {
-          const response = await fetch('http://127.0.0.1:5003/api/llm', {
+          const response = await fetch('https://uchat-wtwo.onrender.com/api/llm', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query: message, role: chatbot.role, url: chatbot.document_url, chathistory:totalHistory }),

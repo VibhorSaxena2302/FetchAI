@@ -1,0 +1,13 @@
+Flask
+flask-cors
+google-cloud-storage
+apscheduler
+langchain
+cohere
+langchain_community
+Chroma
+chromadb
+langchain_huggingface
+langchain_chroma
+pypdf
+gunicorn

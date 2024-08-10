@@ -8,7 +8,8 @@ const LoginPage: React.FC = () => {
     const router = useRouter();
 
     const [isFailed, setisFailed] = useState(false);
-    
+    const [isWaiting, setisWaiting] = useState(false);
+
     const [formData, setFormData] = useState({
         username: '',
         password: ''
@@ -21,6 +22,7 @@ const LoginPage: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         // Post data to the API
+        setisWaiting(true)
         console.log(formData);
         const response = await fetch('/api/login', {
             method: 'POST',
@@ -35,6 +37,7 @@ const LoginPage: React.FC = () => {
             router.push(`/user/${encodeURIComponent(formData.username)}/chatbots`);
             router.refresh()
         } else {
+            setisWaiting(false)
             setisFailed(true)
             console.error('Failed to log in user');
         }
@@ -47,7 +50,7 @@ const LoginPage: React.FC = () => {
                     <h2 className="text-lg font-semibold text-tc mb-4">Login</h2>
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
-                            <label htmlFor="username" className="text-sm font-medium text-tc">Username</label>
+                            <label htmlFor="username" className="text-sm font-medium text-tc">Username  <span style={{ color: 'red' }}>*</span></label>
                             <input
                                 type="text"
                                 id="username"
@@ -59,7 +62,7 @@ const LoginPage: React.FC = () => {
                             />
                         </div>
                         <div>
-                            <label htmlFor="password" className="text-sm font-medium text-tc">Password</label>
+                            <label htmlFor="password" className="text-sm font-medium text-tc">Password  <span style={{ color: 'red' }}>*</span></label>
                             <input
                                 type="password"
                                 id="password"
@@ -70,6 +73,9 @@ const LoginPage: React.FC = () => {
                                 required
                             />
                         </div>
+                        {isWaiting && (
+                            <div className="text-sm font-medium text-error">Please wait</div>
+                        )}
                         {isFailed && (
                             <div className="text-sm font-medium text-error">Username or password incorrect.</div>
                         )}

@@ -1,8 +1,6 @@
-from flask import Flask, jsonify, request, Response
+from flask import Flask, json, jsonify, request, Response
 from flask_cors import CORS
 import llm_model
-from uagents import Model
-from uagents.query import query
 from google.cloud import storage
 import os
 import shutil
@@ -11,21 +9,25 @@ import tempfile
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
+from uagents import Model
+from uagents.query import query
+
+uPROMPT_AGENT_ADDRESS = 'agent1q2vnqcvyevps2c0q6ge9cpxyrvqe7zhkgmuex2fkfjmmf2f64ynljlf4ydh'
+
+class PromptModeler(Model):
+    query: str
+    context_text: str
+    history: str
+    role: str
 
 app = Flask(__name__)
 
 CORS(app)
 llm = llm_model.llm()
 
-uPDF_AGENT_ADDRESS = 'agent1qgs4vrgf72qnkffkn66a36rt2h6p2zcuaaqrstqzuj0a8x2el2m52jd7zrz'
-
 # Dictionary to keep track of loaded databases
 loaded_dbs = {}
 last_access_times = {}
-
-class PDFQuery(Model):
-    pdf_url: str
-    query: str
 
 def empty_directory(dir_path):
     """Empties all contents of the specified directory.
@@ -192,27 +194,11 @@ async def deletePdf():
         return jsonify({'message': 'File deleted.'}), 200
     except Exception as e:
         return jsonify({'error': e}), 409
-    
-@app.route('/api/updf', methods=['POST'])
-async def uPdf():
-    try:
-        username = request.form['username']
-        chatbot_id = request.form['chatbotid']
-        file = request.files.get('file')
-        print(username, chatbot_id, file)
-        # req = PDFQuery(pdf_url=data['pdf_url'], query=data['query'])
-        # response = await query(destination=uPDF_AGENT_ADDRESS, message=req, timeout=15.0)
-        # res = json.loads(response.decode_payload())
-        # print(res)
-        return f"successful call - agent response:"
-    except Exception as e:
-        print(e)
-        return f"unsuccessful agent call: {str(e)}" 
 
-@app.route('/api//llm', methods=['POST'])
-def chat():
+@app.route('/api/llm', methods=['POST'])
+async def chat():
     data = request.get_json()
-    query = data.get('query', '')
+    queryy = data.get('query', '')
     role = data.get('role', '')
     url = data.get('url', '')
     history = data.get('chathistory', '')
@@ -220,10 +206,10 @@ def chat():
     chathistory = ''
 
     for message in history:
-        chathistory += f'\nSender: {message['sender']}'
-        chathistory += f'Message: {message['text']}\n'
+        chathistory += f"\nSender: {message['sender']}"
+        chathistory += f"Message: {message['text']}\n"
 
-    context_text = None
+    context_text = ''
 
     if url:
         url += '/ChromaDB'
@@ -237,12 +223,17 @@ def chat():
         temp_chromadb_path = temp_dir+'/ChromaDB'
         last_access_times[url] = datetime.now() 
         db = chroma.get_chroma(temp_chromadb_path)
-        results = db.similarity_search_with_score(query, k=2)
+        results = db.similarity_search_with_score(queryy, k=2)
         context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results]).replace('\n', ' ')
 
-    prompt = f'Answer the following query. Do not exceed 150 words:\n\n Query: {query}'
+    prompt = f'Answer the following query. Do not exceed 150 words:\n\n Query: {queryy}'
 
-    if context_text:
+    req = PromptModeler(query=queryy, context_text=context_text, history=chathistory, role=role)
+    response = await query(destination=uPROMPT_AGENT_ADDRESS, message=req, timeout=15.0)
+    res = json.loads(response.decode_payload())
+    print(res)
+
+    if context_text != '':
         prompt += f'### CONTEXT ### \n\n {context_text}\n\n'
 
     if len(history) > 0:
@@ -256,4 +247,4 @@ def chat():
 if __name__ == '__main__':
     atexit.register(cleanup_directories)
     scheduler.start()
-    app.run(use_reloader=False, port=5003)
+    app.run(use_reloader=False, debug=True)

@@ -49,17 +49,14 @@ const Navbar: React.FC<NavbarProps> = ({username = 'undefined'}) => {
             </svg>
         </button>
         {!isOpen && (
-            <Link href="/" className="px-4 font-bold text-xl text-primary">
-            Platform Starter Kit
+            <Link href="/" className="px-4 font-bold text-3xl text-primary">
+            <strong>uChat</strong>
             </Link>
         )}
 
         <div className="hidden md:flex space-x-8">
             <Link href="/" className="text-primary hover:text-accent py-2">
             Home
-          </Link>
-          <Link href="/services" className="text-primary hover:text-accent py-2">
-            Services
           </Link>
           <Link href="/about" className="text-primary hover:text-accent py-2">
             About
@@ -94,9 +91,6 @@ const Navbar: React.FC<NavbarProps> = ({username = 'undefined'}) => {
                 <div className='md:hidden flex space-x-2'>
                     <Link href="/" className="block py-2 text-xs text-primary hover:text-accent">
                     Home
-                    </Link>
-                    <Link href="/services" className="block py-2 text-xs text-primary hover:text-accent">
-                    Services
                     </Link>
                     <Link href="/about" className="block py-2 text-xs text-primary hover:text-accent">
                     About
