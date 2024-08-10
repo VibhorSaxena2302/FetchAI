@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { ChatbotLoadingSkeleton } from '@/app/ui/skeletons';
+import Link from 'next/link';
 
 type ChatbotProps = {
   username?: string;
@@ -11,14 +12,19 @@ type ChatbotProps = {
 interface Chatbot {
   name: string;
   description: string | null;
+  role: string | null;
+  document_url: string | null;
 }
 
 const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
+    const chatbotMaxMemory = 4
+    const chatContainerRef = useRef<HTMLDivElement>(null);
     const [chatbot, setChatbot] = useState<Chatbot | null>(null);
     const [isLoading, setLoading] = useState(true)
-
+    
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState<{ sender: string; text: string }[]>([]);
+    const [totalHistory, setTotalHistory] = useState<{ sender: string; text: string }[]>([]);
 
     const pathname = usePathname();
     const parts = pathname.split('/');
@@ -28,7 +34,6 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
         if (chatbotId) {
             const fetchData = async () => {
             try {
-                console.log(chatbotId)
                 const response = await fetch('/api/chatbot_data', {
                     method: 'POST',
                     headers: {
@@ -37,6 +42,7 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
                     body: JSON.stringify({ 'chatbotid': chatbotId }),
                 });
                 const result = await response.json();
+                console.log(result.chatbot)
                 setChatbot(result.chatbot);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -48,6 +54,24 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
             fetchData();
         }
     }, [chatbotId]);
+
+    const scrollToBottom = () => {
+        if (chatContainerRef.current) {
+            const { scrollHeight, clientHeight, scrollTop } = chatContainerRef.current;
+            const isAtBottom = scrollHeight - Math.ceil(scrollTop + clientHeight) <= 50; // tolerance of 50 pixels
+    
+            if (isAtBottom) {
+                chatContainerRef.current.scrollTop = scrollHeight - clientHeight;
+            }
+        }
+    };
+
+    useEffect(() => {
+      scrollToBottom();
+    }, [chatHistory]); 
+
+    if (isLoading) return <ChatbotLoadingSkeleton/>
+    if (!chatbot) return <p>No profile data</p>
 
     const addMessageToChat = (sender:string, text:string, append = false) => {
       setChatHistory((prevHistory) => {
@@ -65,6 +89,13 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
       });
     };
 
+    const addMessageToTotalHistory = (sender: string, text: string) => {
+        setTotalHistory(prevHistory => {
+            const newHistory = [...prevHistory, { sender, text }].slice(-chatbotMaxMemory);
+            return newHistory;
+        });
+    };
+
       const addLoadingIndicator = () => {
         const loadingIndicator = { sender: 'bot', text: '...' };
         setChatHistory((prevHistory) => [...prevHistory, loadingIndicator]);
@@ -75,25 +106,26 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
 
       const handleMessageSend = async () => {
         if (!message.trim()) return;
-      
         addMessageToChat('user', message);
+        addMessageToTotalHistory('user', message);
         setMessage('');
+
         const loadingIndicator = addLoadingIndicator();
-      
         try {
-          console.log('JIII');
-          const response = await fetch('http://127.0.0.1:5000/llm', {
+          const response = await fetch('https://uchat-wtwo.onrender.com/api/llm', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: message }),
+            body: JSON.stringify({ query: message, role: chatbot.role, url: chatbot.document_url, chathistory:totalHistory }),
           });
       
           const reader = response.body?.getReader();
           const decoder = new TextDecoder();
           let buffer = '';
-      
+          let msg0 = '';
+
           if (reader) {
             const readChunk = async () => {
+              
               const { done, value } = await reader.read();
               if (done) {
                 if (buffer) {
@@ -101,10 +133,12 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
                     if (loadingIndicator){
                       loadingIndicator.remove();
                     }
+                    msg0 += char
                     addMessageToChat('bot', char, true);
                     await new Promise((resolve) => setTimeout(resolve, 5)); // 5 milliseconds delay
                   }
                 }
+                addMessageToTotalHistory('chatbot', msg0);
                 return;
               }
       
@@ -118,10 +152,13 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
                     if (loadingIndicator){
                       loadingIndicator.remove();
                     }
+                    msg0 += char
                     addMessageToChat('bot', char, true);
                     await new Promise((resolve) => setTimeout(resolve, 5)); // 5 milliseconds delay
                   }
                 }
+                msg0 += '\n'
+                addMessageToChat('bot', '\n');
               }
       
               readChunk();
@@ -135,23 +172,30 @@ const Chatbot: React.FC<ChatbotProps> = ({username = 'undefined'}) => {
           addMessageToChat('bot', "Sorry, there was an error processing your request.");
         }
       };
-      
-
-      if (isLoading) return <ChatbotLoadingSkeleton/>
-      if (!chatbot) return <p>No profile data</p>
 
   return (
-    <div className="flex flex-col items-center">
-      <h1 className="text-xl md:text-3xl font-bold text-primary py-8">
+    <div className="flex flex-col items-center py-8">
+      <div className="flex space-x-8 bg-white justify-between items-center shadow-inner shadow-secondary rounded"> 
+      <h1 className="text-xl md:text-3xl font-bold text-primary pl-8">
             {chatbot.name}
         </h1>
-      <div className="text-xs md:text-base chat-container w-2/3 max-w-4xl bg-white shadow-md rounded-lg mt-5 p-5 flex flex-col overflow-y-auto h-[30rem]">
-        {chatHistory.length > 0 && chatHistory.map((msg, index) => (
-          <div key={index} className={`chat-bubble max-w-[55%] ${msg.sender === 'user' ? 'self-end bg-primary text-white' : 'self-start bg-primary text-white'} p-3 m-1 rounded-xl`}>
-            {msg.text}
-          </div>
-        ))}
-      </div>
+        <Link href={`/user/${username}/chatbots/${chatbotId}/configure`} className="bg-primary hover:bg-accent text-white font-bold py-2 px-4 rounded">
+            Configure
+        </Link>
+        </div>
+        <div className="text-xs md:text-base chat-container w-2/3 max-w-4xl bg-white shadow-md rounded-lg mt-5 p-5 flex flex-col overflow-y-auto h-[30rem]" ref={chatContainerRef}>
+          {chatHistory.length > 0 && chatHistory.map((msg, index) => {
+            const messageContent = msg.text.trim();  // Trim whitespace from message text
+            if (messageContent) {  // Only render non-empty messages
+              return (
+                <div key={index} className={`chat-bubble max-w-[55%] ${msg.sender === 'user' ? 'self-end bg-primary text-white' : 'self-start bg-primary text-white'} p-3 m-1 rounded-xl`}>
+                  {msg.text}
+                </div>
+              );
+            }
+            return null;  // Don't render anything for empty messages
+          })}
+        </div>
       <div className="text-sm md:text-base input-container w-2/3 max-w-4xl flex mt-5">
         <input
           type="text"
